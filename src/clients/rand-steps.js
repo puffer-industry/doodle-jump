@@ -5,6 +5,10 @@
         this.bottom = app.height - 100;
         this.ground = app.height + 100;
         this.doodle = doodle;
+
+        this.state = {
+            
+        };
     };
 
     RandSteps.prototype.update = function() {
@@ -20,20 +24,39 @@
                 var sp = step.getPosition()
                 if (sp.y > 0 && sp.y < app.height && this.isCollision(step)) {
                     this.doodle.setStep(sp.y - this.doodle.getHeight());
-                    var bottomValue = this.bottom - sp.y;
                     if (sp.y < app.height / 2) {
-                        this.doodle.onBottomChange(bottomValue);
-                        for (var index in app.steps) {
-                            var s = app.steps[index];
-                            s.setBottom(bottomValue);
-                            if (s.getPosition().y > app.height) {
-                                s.terminate();
-                                delete app.steps[index];
-                            }
-                        }
+                        var bottomValue = this.bottom - sp.y;
+                        this.moveDown(bottomValue);
+                        this.prepareSteps(10);
                     }
                     break;
                 }
+            }
+        }
+    };
+
+    RandSteps.prototype.moveDown = function(bottomValue) {
+        this.doodle.onBottomChange(bottomValue);
+        for (var index in app.steps) {
+            var s = app.steps[index];
+            s.setBottom(bottomValue);
+            if (s.getPosition().y > app.height) {
+                s.terminate();
+                app.steps.splice(index, 1);
+            }
+        }
+    };
+
+    RandSteps.prototype.prepareSteps = function(minNumber) {
+        if (app.steps.length < minNumber) {
+            var initY = app.steps[app.steps.length - 2].getPosition().y;
+            for (var n = 0; n < 15; n++) {
+                var x = functools.getRandomNumber(app.width - 50);
+                var stepClient = new StepClient(layer_step, x, initY);
+                app.attach(stepClient);
+                app.steps.push(stepClient);
+                var random = functools.getRandomNumber(20);
+                initY -= 90 + random;
             }
         }
     };

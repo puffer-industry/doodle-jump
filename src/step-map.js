@@ -1,39 +1,31 @@
 (function(window, document) {
     "use strict"
 
+    var y = 0;
 
-    function getStepMap(num, initY) {
+    function build(x) {
+        var stepClient = new StepClient(layer_step, x, y);
+        app.attach(stepClient);
+        app.steps.push(stepClient);
+        var random = functools.getRandomNumber(20);
+        y -= 100 + random;
+    }
+
+    function getStepMap(initY) {
         var images = app.getData('images');
         var width = app.width - images.step_green.width;
+        y = initY;
+        var per = width / 5;
 
-        var stepClient = new StepClient(layer_step, width / 2, initY);
-        app.attach(stepClient);
-        app.steps.push(stepClient);
-        initY -= 100;
-
-        var stepClient = new StepClient(layer_step, 0, initY);
-        app.attach(stepClient);
-        app.steps.push(stepClient);
-        initY -= 100;
-
-        var stepClient = new StepClient(layer_step, width, initY);
-        app.attach(stepClient);
-        app.steps.push(stepClient);
-        initY -= 100;
-
-        var stepClient = new StepClient(layer_step, 100, initY);
-        app.attach(stepClient);
-        app.steps.push(stepClient);
-        initY -= 100;
-
-        for (var i = 0; i < num; i++) {
-            var x = functools.getRandomNumber(width);
-            var stepClient = new StepClient(layer_step, x, initY);
-            app.attach(stepClient);
-            app.steps.push(stepClient);
-            var random = functools.getRandomNumber(20);
-            initY -= 90 + random;
-        }
+        build(width / 2);
+        build(0);
+        build(0);
+        build(width);
+        build(width - 2 * per);
+        build(per);
+        build(2 * per);
+        build(width - 3 * per);
+        build(per + 100);
     }
 
     window.getStepMap = getStepMap;
