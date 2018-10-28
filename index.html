@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <script src="./vendor/es6-promise.auto.min.js"></script>
+
+    <script src="./src/app.js"></script>
+    <script src="./src/functools.js"></script>
+    <script src="./src/image-loader.js"></script>
+    <script src="./src/images-factory.js"></script>
+    <script src="./src/layer.js"></script>
+    <script src="./src/clients/base.client.js"></script>
+    <script src="./src/clients/doodle.client.js"></script>
+    <script src="./src/clients/step.client.js"></script>
+    <script src="./src/step-map.js"></script>
+    <script src="./src/clients/rand-steps.js"></script>
+
+    <title>Doodle Jump</title>
+</head>
+<body>
+    <div id="share-board">
+        <h1>Doodle Jump</h1>
+        <div class="bar">
+            <span id="loader"></span>
+        </div>
+        <button id="start-game" type="button">GO!</button>
+    </div>
+    <div id="app">
+        <!-- load app here. -->
+    </div>
+
+    <script>
+    var imageLoader = new ImageLoader({
+        doodle_right: './images/blue-lik-right.png',
+        tools: './images/tools.png',
+    });
+
+    imageLoader.onEachLoaded(function(image, key) {
+        var loader = document.getElementById('loader');
+        var length = Object.keys(this.files).length;
+        var per = 1 / length * 100;
+        var value = per * this._counter;
+        if (value > 100) value = 100;
+        loader.style.width = value + '%';
+    });
+
+    imageLoader.load().then(function(images) {
+
+        var startGame = document.getElementById('start-game');
+        startGame.style.display = 'block';
+        startGame.onclick = function(e) {
+
+            window.app = new App(document.getElementById('app'));
+            app.setData('images', imagesFactory(images));
+
+            var shareBoard = document.getElementById('share-board');
+            shareBoard.style.display = 'none';
+
+            // steps
+            window.layer_step = new Layer(app.width, app.height);
+            app.appendChild(layer_step.getCanvas());
+            getStepMap(200, app.height - app.height / 5);
+
+            // doodle
+            var layer = new Layer(app.width, app.height);
+            app.appendChild(layer.getCanvas());
+            var doodleClient = new DoodleClient(layer);
+            window.ondeviceorientation = function(orientData) {
+                doodleClient.onGammaChange(orientData.gamma);
+            };
+            app.attach(doodleClient);
+
+            var randSteps = new RandSteps(doodleClient);
+            app.attach(randSteps);
+
+            app.start();
+        };
+    });
+
+
+    </script>
+</body>
+</html>
