@@ -23,13 +23,14 @@
                     var bottomValue = this.bottom - sp.y;
                     if (sp.y < app.height / 2) {
                         this.doodle.onBottomChange(bottomValue);
-                        app.steps.forEach((s, index) => {
+                        for (var index in app.steps) {
+                            var s = app.steps[index];
                             s.setBottom(bottomValue);
                             if (s.getPosition().y > app.height) {
                                 s.terminate();
                                 delete app.steps[index];
                             }
-                        });
+                        }
                     }
                     break;
                 }
